@@ -136,8 +136,7 @@ end
 ```
 
 ## POSTMAN
-<img width="2766" height="1706" alt="image" src="https://github.com/user-attachments/assets/2509581e-f7e0-46de-a071-5cf513621ab0" />
-equest code:
+Request code:
 ```
 {
   "cafe": {
