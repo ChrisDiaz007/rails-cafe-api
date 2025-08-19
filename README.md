@@ -1,6 +1,6 @@
 # Rails Cafe API
 
-# Goal - Back End
+## Goal - Back End
 
 
 Things you may want to cover:
