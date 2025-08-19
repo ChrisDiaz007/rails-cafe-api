@@ -104,3 +104,94 @@ namespace :api, defaults: { format: :json } do
   end
 end
 ```
+## Controller Actions
+Starting with index
+```
+def index
+  @cafes = Cafe.all
+end
+```
+If we allow users to search for cafes by their title in our app, we can add that into our action as well:
+
+```
+def index
+  if params[:title].present?
+    @cafes = Cafe.where('title ILIKE ?', "%#{params[:title]}%")
+  else
+    @cafes = Cafe.all
+  end
+end
+```
+BUT, this is the biggest difference from building an API compared to one with HTML views. Instead of rendering HTML, we're going to render JSON.
+```
+def index
+  if params[:title].present?
+    @cafes = Cafe.where('title ILIKE ?', "%#{params[:title]}%")
+  else
+    @cafes = Cafe.all
+  end
+  # Putting the most recently created cafes first
+  render json: @cafes.order(created_at: :desc)
+end
+```
+
+## POSTMAN
+<img width="2766" height="1706" alt="image" src="https://github.com/user-attachments/assets/2509581e-f7e0-46de-a071-5cf513621ab0" />
+equest code:
+```
+{
+  "cafe": {
+    "title": "Le Wagon Tokyo",
+    "address": "2-11-3 Meguro, Meguro City, Tokyo 153-0063",
+    "picture": "https://www-img.lewagon.com/wtXjAOJx9hLKEFC89PRyR9mSCnBOoLcerKkhWp-2OTE/rs:fill:640:800/plain/s3://wagon-www/x385htxbnf0kam1yoso5y2rqlxuo",
+    "criteria": ["Stable Wi-Fi", "Power sockets", "Coffee", "Food"],
+    "hours": {
+      "Mon": ["10:30 – 18:00"],
+      "Tue": ["10:30 – 18:00"],
+      "Wed": ["10:30 – 18:00"],
+      "Thu": ["10:30 – 18:00"],
+      "Fri": ["10:30 – 18:00"],
+      "Sat": ["10:30 – 18:00"]
+    }
+  }
+}
+```
+Controller
+```
+def create
+  @cafe = Cafe.new(cafe_params)
+  if @cafe.save
+    render json: @cafe, status: :created
+  else
+    render json: { error: @cafe.errors.messages }, status: :unprocessable_entity
+  end
+end
+
+private
+
+def cafe_params
+  params.require(:cafe).permit(:title, :address, :picture, hours: {}, criteria: [])
+end
+```
+
+## CORS
+Specific
+```
+Rails.application.config.middleware.insert_before 0, Rack::Cors do
+  allow do
+    origins 'http://example.com:80'
+    resource '/orders',
+      :headers => :any,
+      :methods => [:post]
+  end
+end
+```
+Allow all
+```
+Rails.application.config.middleware.insert_before 0, Rack::Cors do
+  allow do
+    origins '*'
+    resource '*', headers: :any, methods: [:get, :post, :patch, :put]
+  end
+end
+```
